@@ -12,5 +12,6 @@ const cityController = new CityController(cityService);
 router.post('/', cityController.create.bind(cityController));
 router.put('/:id', cityController.update.bind(cityController));
 router.get('/', cityController.getAll.bind(cityController));
+router.delete('/:id', cityController.delete.bind(cityController));
 
 export default router;

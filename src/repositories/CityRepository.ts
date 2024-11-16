@@ -17,4 +17,9 @@ export class CityRepository {
 		const repository = AppDataSource.getRepository(City);
 		return await repository.find();
 	}
+
+	async delete(id: number): Promise<void> {
+		const repository = AppDataSource.getRepository(City);
+		await repository.delete(id);
+	}
 }

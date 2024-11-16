@@ -15,4 +15,8 @@ export class CityService {
 	async getAll(): Promise<City[]> {
 		return await this.cityRepository.getAll();
 	}
+
+	async delete(id: number): Promise<void> {
+		await this.cityRepository.delete(id);
+	}
 }
