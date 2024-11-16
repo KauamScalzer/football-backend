@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { City } from './entities';
+import { City, Team } from './entities';
 
 export const AppDataSource = new DataSource({
 	type: 'postgres',
@@ -10,5 +10,5 @@ export const AppDataSource = new DataSource({
 	database: 'football_db',
 	synchronize: true,
 	logging: false,
-	entities: [City],
+	entities: [City, Team],
 });
