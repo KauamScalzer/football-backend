@@ -1,0 +1,23 @@
+{
+  "name": "football-backend",
+  "version": "1.0.0",
+  "description": "Projeto criado para a matéria Desenvolvimento Back-End",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx watch ./src/server.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
+    "tsx": "^4.19.2",
+    "typeorm": "^0.3.20",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/express": "^5.0.0"
+  }
+}
