@@ -15,8 +15,13 @@ export class TeamService {
 		return await this.teamRepository.create(params);
 	}
 
-	async update(params: TeamDto): Promise<void> {
+	async update(params: TeamDto): Promise<boolean> {
+		const cityExists = await this.cityRepository.checkOne(params.cityId);
+		if (!cityExists) {
+			return false;
+		}
 		await this.teamRepository.update(params);
+		return true;
 	}
 
 	async getAll(): Promise<Team[]> {

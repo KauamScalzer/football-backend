@@ -11,5 +11,8 @@ const teamService = new TeamService(teamRepository, cityRepository);
 const teamController = new TeamController(teamService);
 
 router.post('/', teamController.create.bind(teamController));
+router.get('/', teamController.getAll.bind(teamController));
+router.delete('/:id', teamController.delete.bind(teamController));
+router.put('/:id', teamController.update.bind(teamController));
 
 export default router;
