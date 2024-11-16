@@ -22,4 +22,9 @@ export class CityRepository {
 		const repository = AppDataSource.getRepository(City);
 		await repository.delete(id);
 	}
+
+	async checkOne(id: number): Promise<boolean> {
+		const repository = AppDataSource.getRepository(City);
+		return await repository.exists({ where: { id } });
+	}
 }

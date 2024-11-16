@@ -25,6 +25,10 @@ export class TeamController {
 				cityId,
 				foundationYear,
 			});
+			if (!result) {
+				res.status(400).send({ error: 'Invalid param: cityId' });
+				return;
+			}
 			res.status(201).send(result);
 		} catch (error) {
 			console.log(error);

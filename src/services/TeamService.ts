@@ -1,10 +1,17 @@
 import type { Team } from '../database/entities';
 import type { TeamDto, CreateTeamDto } from '../dtos';
-import type { TeamRepository } from '../repositories';
+import type { CityRepository, TeamRepository } from '../repositories';
 
 export class TeamService {
-	constructor(private readonly teamRepository: TeamRepository) {}
+	constructor(
+		private readonly teamRepository: TeamRepository,
+		private readonly cityRepository: CityRepository,
+	) {}
 	async create(params: CreateTeamDto): Promise<Team> {
+		const cityExists = await this.cityRepository.checkOne(params.cityId);
+		if (!cityExists) {
+			return;
+		}
 		return await this.teamRepository.create(params);
 	}
 
