@@ -18,9 +18,8 @@ Certifique-se de ter as seguintes ferramentas instaladas:
     npm install
 
 3. Configure o banco de dados:
-Edite o arquvio .env na raiz do projeto
 Crie um banco de dados no MySQL.
-Crie um arquivo .env na raiz do projeto com as seguintes variáveis:
+Edite o arquvio .env na raiz do projeto com as seguintes variáveis:
     ```bash
     DB_HOST=localhost
     DB_PORT=5432
