@@ -15,7 +15,9 @@ export class TeamRepository {
 
 	async getAll(): Promise<Team[]> {
 		const repository = AppDataSource.getRepository(Team);
-		return await repository.find();
+		return await repository.find({
+			relations: ['city'],
+		});
 	}
 
 	async delete(id: number): Promise<void> {

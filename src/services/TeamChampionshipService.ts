@@ -14,8 +14,8 @@ export class TeamChampionshipService {
 		await this.teamChampionshipRepository.update(params);
 	}
 
-	async getAll(): Promise<TeamChampionship[]> {
-		return await this.teamChampionshipRepository.getAll();
+	async getAll(championshipId: number): Promise<TeamChampionship[]> {
+		return await this.teamChampionshipRepository.getAll(championshipId);
 	}
 
 	async delete(id: number): Promise<void> {

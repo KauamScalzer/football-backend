@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Campeonatos</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRUD de Campeonatos</h1>
+
+    <!-- Criar Campeonato -->
+    <section>
+        <h2>Criar Campeonato</h2>
+        <form id="create-championship-form">
+            <input type="text" id="championship-name" placeholder="Nome do Campeonato" required>
+            <button type="submit" title="Adicionar Campeonato">+</button>
+        </form>
+    </section>
+
+    <!-- Listar Campeonatos -->
+    <section>
+        <h2>Campeonatos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="championship-list"></tbody>
+        </table>
+    </section>
+
+    <a href="index.html">Voltar</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchChampionships); // Carregar a lista de campeonatos
+
+        // Função para listar campeonatos
+        async function fetchChampionships() {
+            const response = await fetch('/championship');
+            const championships = await response.json();
+            const list = document.getElementById('championship-list');
+            list.innerHTML = ''; // Limpar a lista
+
+            championships.forEach(championship => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${championship.name}</td>
+                    <td>
+                        <button onclick="editChampionship(${championship.id}, '${championship.name}')" title="Editar Campeonato">✏️</button>
+                        <button onclick="deleteChampionship(${championship.id})" title="Excluir Campeonato">🗑️</button>
+                        <button onclick="viewEditions(${championship.id})" title="Ver Edições">📅</button>
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        // Criar campeonato
+        document.getElementById('create-championship-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('championship-name').value;
+            
+            await fetch('/championship', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+
+            document.getElementById('championship-name').value = ''; // Limpar o campo
+            fetchChampionships(); // Atualizar a lista
+        });
+
+        // Editar campeonato
+        async function editChampionship(id, currentName) {
+            const newName = prompt(`Editar Campeonato: ${currentName}`, currentName);
+            if (newName) {
+                await fetch(`/championship/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName }),
+                });
+                fetchChampionships(); // Atualizar a lista
+            }
+        }
+
+        // Excluir campeonato
+        async function deleteChampionship(id) {
+            if (confirm('Tem certeza que deseja excluir este campeonato?')) {
+                await fetch(`/championship/${id}`, { method: 'DELETE' });
+                fetchChampionships(); // Atualizar a lista
+            }
+        }
+
+        // Ver edições de um campeonato
+        async function viewEditions(championshipId) {
+            window.location.href = `team_championship.html?championshipId=${championshipId}`; // Redireciona para a tela de edições
+        }
+    </script>
+</body>
+</html>

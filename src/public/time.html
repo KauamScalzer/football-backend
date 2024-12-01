@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Times</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRUD de Times</h1>
+
+    <!-- Criar Time -->
+    <section>
+        <h2>Criar Time</h2>
+        <form id="create-team-form">
+            <input type="text" id="team-name" placeholder="Nome do Time" required>
+            <input type="number" id="team-foundation-year" placeholder="Ano de Fundação" required>
+            <select id="team-city" required>
+                <option value="">Selecione uma Cidade</option>
+            </select>
+            <button type="submit" title="Adicionar Time">+</button>
+        </form>
+    </section>
+
+    <!-- Listar Times -->
+    <section>
+        <h2>Times</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Ano de Fundação</th>
+                    <th>Cidade</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="team-list"></tbody>
+        </table>
+    </section>
+
+    <a href="index.html">Voltar</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCitiesForSelect(); // Carregar as cidades no select
+            fetchTeams();          // Carregar a lista de times
+        });
+
+        // Carregar cidades para o select
+        async function fetchCitiesForSelect() {
+            const response = await fetch('/city');
+            const cities = await response.json();
+            const citySelect = document.getElementById('team-city');
+            citySelect.innerHTML = '<option value="">Selecione uma Cidade</option>'; // Resetar o select
+
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.id;
+                option.textContent = city.name;
+                citySelect.appendChild(option);
+            });
+        }
+
+        // Carregar lista de times
+        async function fetchTeams() {
+            const response = await fetch('/team');
+            const teams = await response.json();
+            const list = document.getElementById('team-list');
+            list.innerHTML = ''; // Limpar a lista
+
+            teams.forEach(team => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${team.name}</td>
+                    <td>${team.foundationYear}</td>
+                    <td>${team.city.name || 'N/A'}</td>
+                    <td>
+                        <button onclick="editTeam(${team.id}, '${team.name}', ${team.foundationYear}, ${team.cityId})" title="Editar Time">✏️</button>
+                        <button onclick="deleteTeam(${team.id})" title="Excluir Time">🗑️</button>
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        // Criar time
+        document.getElementById('create-team-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('team-name').value;
+            const foundationYear = document.getElementById('team-foundation-year').value;
+            const cityId = document.getElementById('team-city').value;
+
+            await fetch('/team', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, foundationYear, cityId }),
+            });
+
+            document.getElementById('team-name').value = ''; // Limpar o campo
+            document.getElementById('team-foundation-year').value = '';
+            document.getElementById('team-city').value = '';
+            fetchTeams(); // Atualizar a lista
+        });
+
+        // Editar time
+        async function editTeam(id, currentName, currentFoundationYear, currentCityId) {
+            const newName = prompt(`Editar Nome do Time:`, currentName) || currentName;
+            const newFoundationYear = prompt(`Editar Ano de Fundação:`, currentFoundationYear) || currentFoundationYear;
+            const newCityId = prompt(`Editar ID da Cidade (Atual: ${currentCityId}):`, currentCityId) || currentCityId;
+
+            await fetch(`/team/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: newName,
+                    foundationYear: parseInt(newFoundationYear),
+                    cityId: parseInt(newCityId),
+                }),
+            });
+
+            fetchTeams(); // Atualizar a lista
+        }
+
+        // Excluir time
+        async function deleteTeam(id) {
+            if (confirm('Tem certeza que deseja excluir este time?')) {
+                await fetch(`/team/${id}`, { method: 'DELETE' });
+                fetchTeams(); // Atualizar a lista
+            }
+        }
+    </script>
+</body>
+</html>

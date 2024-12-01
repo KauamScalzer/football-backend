@@ -18,7 +18,7 @@ router.post(
 	teamChampionshipController.create.bind(teamChampionshipController),
 );
 router.get(
-	'/',
+	'/:championshipId',
 	teamChampionshipController.getAll.bind(teamChampionshipController),
 );
 router.delete(

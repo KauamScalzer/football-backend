@@ -69,9 +69,12 @@ export class TeamChampionshipController {
 		}
 	}
 
-	async getAll(_req: Request, res: Response): Promise<void> {
+	async getAll(req: Request, res: Response): Promise<void> {
 		try {
-			const result = await this.teamChampionshipService.getAll();
+			const { championshipId } = req.params;
+			const paramChampionshipId = Number.parseInt(championshipId);
+			const result =
+				await this.teamChampionshipService.getAll(paramChampionshipId);
 			res.status(200).send(result);
 		} catch (error) {
 			console.log(error);

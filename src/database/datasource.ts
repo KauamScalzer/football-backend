@@ -2,9 +2,9 @@ import { DataSource } from 'typeorm';
 import { City, Team, Championship, TeamChampionship } from './entities';
 
 export const AppDataSource = new DataSource({
-	type: 'postgres',
+	type: 'mysql',
 	host: 'localhost',
-	port: 5432,
+	port: 3306,
 	username: 'root',
 	password: 'pwd_root',
 	database: 'football_db',

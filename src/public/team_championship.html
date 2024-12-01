@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edições do Campeonato</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edições do Campeonato</h1>
+
+    <!-- Criar Edição -->
+    <section>
+        <h2>Criar Edição</h2>
+        <form id="create-edition-form">
+            <input type="number" id="year" placeholder="Ano" required>
+            
+            <!-- Campo Select para o time campeão -->
+            <select id="team-select" required>
+                <option value="">Selecione o Time Campeão</option>
+            </select>
+
+            <button type="submit" title="Adicionar Edição">+</button>
+        </form>
+    </section>
+
+    <!-- Listar Edições -->
+    <section>
+        <h2>Edições</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ano</th>
+                    <th>Time Campeão</th>
+                    <th>Campeonato</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="editions-list"></tbody>
+        </table>
+    </section>
+
+    <a href="index.html">Voltar</a>
+
+    <script>
+        // Pega o campeonatoId da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const championshipId = urlParams.get('championshipId');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (championshipId) {
+                fetchEditions(championshipId); // Carregar as edições do campeonato
+                fetchTeams(); // Carregar os times disponíveis para o select
+            }
+        });
+
+        // Função para listar edições
+        async function fetchEditions(championshipId) {
+            const response = await fetch(`/team-championship/${championshipId}`);
+            const editions = await response.json();
+            const list = document.getElementById('editions-list');
+            list.innerHTML = ''; // Limpar a lista
+
+            editions.forEach(edition => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${edition.year}</td>
+                    <td>${edition.team.name}</td>
+                    <td>${edition.championship.name}</td>
+                    <td>
+                        <button onclick="editEdition(${edition.id}, ${edition.year}, '${edition.team.id}', '${edition.team.name}')" title="Editar Edição">✏️</button>
+                        <button onclick="deleteEdition(${edition.id})" title="Excluir Edição">🗑️</button>
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        // Função para listar os times no select
+        async function fetchTeams() {
+            const response = await fetch('/team'); // Endpoint para pegar a lista de times
+            const teams = await response.json();
+            const teamSelect = document.getElementById('team-select');
+            teamSelect.innerHTML = '<option value="">Selecione o Time Campeão</option>'; // Limpar as opções existentes
+
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id; // ID do time
+                option.textContent = team.name; // Nome do time
+                teamSelect.appendChild(option);
+            });
+        }
+
+        // Criar edição
+        document.getElementById('create-edition-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const year = document.getElementById('year').value;
+            const teamId = document.getElementById('team-select').value;
+            
+            if (!teamId) {
+                alert("Por favor, selecione um time campeão.");
+                return;
+            }
+
+            await fetch(`/team-championship`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ year, teamId, championshipId }),
+            });
+
+            document.getElementById('year').value = ''; // Limpar o campo
+            document.getElementById('team-select').value = ''; // Limpar o select
+            fetchEditions(championshipId); // Atualizar a lista
+        });
+
+        // Editar edição
+        async function editEdition(id, currentYear, currentTeamId, currentTeamName) {
+            const newYear = prompt(`Editar Edição: ${currentYear}`, currentYear);
+            const teamSelect = document.getElementById('team-select');
+            // Selecionar o time atual
+            teamSelect.value = currentTeamId;
+
+            const newTeamId = teamSelect.value;
+
+            if (newYear && newTeamId) {
+                await fetch(`/team-championship/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ year: newYear, teamId: newTeamId, championshipId }),
+                });
+                fetchEditions(championshipId); // Atualizar a lista
+            }
+        }
+
+        // Excluir edição
+        async function deleteEdition(id) {
+            if (confirm('Tem certeza que deseja excluir esta edição?')) {
+                await fetch(`/team-championship/${id}`, { method: 'DELETE' });
+                fetchEditions(championshipId); // Atualizar a lista
+            }
+        }
+    </script>
+</body>
+</html>

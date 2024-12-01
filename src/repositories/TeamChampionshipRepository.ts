@@ -13,9 +13,12 @@ export class TeamChampionshipRepository {
 		await repository.update(params.id, { ...params });
 	}
 
-	async getAll(): Promise<TeamChampionship[]> {
+	async getAll(championshipId: number): Promise<TeamChampionship[]> {
 		const repository = AppDataSource.getRepository(TeamChampionship);
-		return await repository.find();
+		return await repository.find({
+			where: { championshipId: championshipId },
+			relations: ['team', 'championship'],
+		});
 	}
 
 	async delete(id: number): Promise<void> {

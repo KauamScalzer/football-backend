@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Cidades</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRUD de Cidades</h1>
+
+    <!-- Criar Cidade -->
+    <section>
+        <h2>Criar Cidade</h2>
+        <form id="create-city-form">
+            <input type="text" id="city-name" placeholder="Nome da Cidade" required>
+            <button type="submit" title="Adicionar Cidade">+</button>
+        </form>
+    </section>
+
+    <!-- Listar Cidades -->
+    <section>
+        <h2>Cidades</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="city-list"></tbody>
+        </table>
+    </section>
+
+    <a href="index.html">Voltar</a>
+
+    <script>
+        // Carregar a lista automaticamente ao carregar a página
+        document.addEventListener('DOMContentLoaded', fetchCities);
+
+        // Função para listar cidades
+        async function fetchCities() {
+            const response = await fetch('/city');
+            const cities = await response.json();
+            const list = document.getElementById('city-list');
+            list.innerHTML = ''; // Limpa a lista antes de renderizar novamente
+
+            cities.forEach(city => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${city.name}</td>
+                    <td>
+                        <button onclick="editCity(${city.id}, '${city.name}')" title="Editar Cidade">✏️</button>
+                        <button onclick="deleteCity(${city.id})" title="Excluir Cidade">🗑️</button>
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        // Criar cidade
+        document.getElementById('create-city-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('city-name').value;
+            await fetch('/city', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            document.getElementById('city-name').value = ''; // Limpar o campo
+            fetchCities(); // Atualizar a lista
+        });
+
+        // Atualizar cidade
+        async function editCity(id, currentName) {
+            const newName = prompt(`Editar cidade: ${currentName}`, currentName);
+            if (newName) {
+                await fetch(`/city/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName }),
+                });
+                fetchCities(); // Atualizar a lista
+            }
+        }
+
+        // Excluir cidade
+        async function deleteCity(id) {
+            if (confirm('Tem certeza que deseja excluir esta cidade?')) {
+                await fetch(`/city/${id}`, { method: 'DELETE' });
+                fetchCities(); // Atualizar a lista
+            }
+        }
+    </script>
+</body>
+</html>
